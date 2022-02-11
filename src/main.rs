@@ -95,6 +95,11 @@ fn wall_collision_system(mut query: Query<(&mut Transform, &mut Velocity)>, win_
     }
 }
 
+/// This event shall be triggered every time the window size updates, and it
+/// will update the resource [`WindowSizeState`] with the new size.
+///
+/// The [`WindowSizeState`] is used by collision and various things for dynamic
+/// positioning and collision calculations based on the window size.
 fn resize_detector(resize_event: Res<Events<WindowResized>>, mut win_state: ResMut<WindowSizeState>) {
     let mut reader = resize_event.get_reader();
     for event in reader.iter(&resize_event) {
