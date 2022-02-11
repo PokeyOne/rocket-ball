@@ -1,3 +1,9 @@
+//! A small test-project for the Bevy game-engine.
+//!
+//! Essentially there is a ball on the screen that is affected by gravity, and
+//! it will bounce off the walls. The user may also press buttons to activate
+//! thrusters side-to-side and up-and-down. That's it.
+
 use bevy::prelude::*;
 use bevy::core::FixedTimestep;
 use bevy::window::WindowResized;
@@ -13,6 +19,9 @@ const BALL_SIZE: f32 = 15.0;
 #[derive(Component)]
 struct Gravity;
 
+/// Used for entities that track their speed. Such as the ball.
+///
+/// See also [`Gravity`]
 #[derive(Component)]
 struct Velocity {
     value: Vec3
@@ -26,11 +35,13 @@ impl Default for Velocity {
     }
 }
 
+/// A resouce used to resize things based on the current size of the window.
 struct WindowSizeState {
     width: f32,
     height: f32
 }
 
+/// Setup all the entities such as the cameras and the ball
 fn setup(mut commands: Commands) {
     // cameras
     commands.spawn_bundle(OrthographicCameraBundle::new_2d());
@@ -54,19 +65,25 @@ fn setup(mut commands: Commands) {
         .insert(Velocity::default());
 }
 
+/// Apply the acceleration of gravity to entities that implement velocity,
+/// and gravity
 fn gravity_system(mut query: Query<(&Gravity, &mut Velocity)>) {
     for (_, mut v) in query.iter_mut() {
         v.value += Vec3::new(0.0, -0.2, 0.0);
     }
 }
 
+/// Apply transformation due to velocity to all entities with position
+/// and velocity
 fn velocity_system(mut query: Query<(&mut Transform, &Velocity)>) {
     for (mut t, v) in query.iter_mut() {
         t.translation += v.value;
     }
 }
 
+/// Handle collisions witht the sides of the window
 fn wall_collision_system(mut query: Query<(&mut Transform, &mut Velocity)>, win_state: Res<WindowSizeState>) {
+    // The location of the bottom border
     let bottom_border = -(win_state.height/2.0 - BALL_SIZE);
 
     for (mut t, mut v) in query.iter_mut() {
